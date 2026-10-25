@@ -11,7 +11,7 @@ interface AnalysisPanelProps {
   isSingular: boolean;
 }
 
-const VARIABLE_NAMES = ['x', 'y', 'z', 'w'];
+const VARIABLE_NAMES = ['x₁', 'x₂', 'x₃', 'x₄', 'x₅'];
 
 export const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
   dominance,
@@ -25,8 +25,56 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
   const activeSnapshot = snapshots[currentStep] || snapshots[0];
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-      {/* 1. ANÁLISIS DE DOMINANCIA DIAGONAL */}
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      {/* 1. DIAGNÓSTICO Y MÉTRICAS CLAVE DE LA ITERACIÓN ACTUAL */}
+      <div className="card">
+        <div className="card-header">
+          <div className="card-title">
+            <svg className="card-title-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+            </svg>
+            Diagnóstico de la Iteración k = {activeSnapshot.k}
+          </div>
+          <span className={activeSnapshot.converged ? 'badge-success' : 'badge-info'}>
+            {activeSnapshot.converged ? 'Convergencia Verificada' : 'En Cálculo'}
+          </span>
+        </div>
+
+        {/* Rejilla de Métricas KPI */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginTop: '4px' }}>
+          {/* KPI 1: Error Máximo Aproximado */}
+          <div style={{ backgroundColor: 'var(--surface-subtle)', border: '1px solid var(--border-default)', borderRadius: 'var(--radius-sm)', padding: '10px' }}>
+            <span style={{ fontSize: '0.74rem', color: 'var(--text-secondary)', fontWeight: 600 }}>
+              Error Aprox. Máx (Ea):
+            </span>
+            <div style={{ fontSize: '1.15rem', fontWeight: 700, color: 'var(--primary-blue)', fontFamily: 'var(--font-mono)', marginTop: '2px' }}>
+              {activeSnapshot.maxApproximateError !== null
+                ? `${activeSnapshot.maxApproximateError.toFixed(4)}%`
+                : 'Paso 0'}
+            </div>
+          </div>
+
+          {/* KPI 2: Norma del Residuo */}
+          <div style={{ backgroundColor: 'var(--surface-subtle)', border: '1px solid var(--border-default)', borderRadius: 'var(--radius-sm)', padding: '10px' }}>
+            <span style={{ fontSize: '0.74rem', color: 'var(--text-secondary)', fontWeight: 600 }}>
+              Norma Residuo ||r||∞:
+            </span>
+            <div style={{ fontSize: '1.15rem', fontWeight: 700, color: 'var(--math-teal)', fontFamily: 'var(--font-mono)', marginTop: '2px' }}>
+              {activeSnapshot.residualInfNorm.toExponential(3)}
+            </div>
+          </div>
+        </div>
+
+        {/* Determinante y Condición */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '4px', padding: '6px 8px', backgroundColor: 'var(--surface-subtle)', borderRadius: 'var(--radius-xs)' }}>
+          <span>Determinante de la matriz det(A):</span>
+          <strong style={{ fontFamily: 'var(--font-mono)', color: isSingular ? 'var(--danger-red)' : 'var(--text-primary)' }}>
+            {Math.round(determinant * 1e4) / 1e4}
+          </strong>
+        </div>
+      </div>
+
+      {/* 2. ANÁLISIS DE DOMINANCIA DIAGONAL */}
       <div className="card">
         <div className="card-header">
           <div className="card-title">
@@ -37,46 +85,41 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
             </svg>
             Dominancia Diagonal Estricta
           </div>
-          <span
-            className="inst-badge"
-            style={{
-              backgroundColor: dominance.isStrictlyDominant ? 'rgba(16, 185, 129, 0.15)' : 'rgba(244, 63, 94, 0.15)',
-              color: dominance.isStrictlyDominant ? '#34d399' : '#f87171',
-              borderColor: dominance.isStrictlyDominant ? 'rgba(16, 185, 129, 0.3)' : 'rgba(244, 63, 94, 0.3)'
-            }}
-          >
+          <span className={dominance.isStrictlyDominant ? 'badge-success' : 'badge-warning'}>
             {dominance.isStrictlyDominant ? 'Garantizada' : 'Sin Garantía Teórica'}
           </span>
         </div>
 
-        <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-          Condición suficiente habitual: <code style={{ color: '#38bdf8' }}>|a_ii| &gt; ∑_(j≠i) |a_ij|</code>
+        <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.45 }}>
+          Condición suficiente: <code style={{ color: 'var(--primary-blue)', fontWeight: 600 }}>|a_ii| &gt; &Sigma;_(j&ne;i) |a_ij|</code>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', background: 'rgba(15, 23, 42, 0.6)', padding: '10px', borderRadius: '6px', fontFamily: 'monospace', fontSize: '0.8rem' }}>
+        {/* Desglose por filas */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', backgroundColor: 'var(--surface-subtle)', border: '1px solid var(--border-default)', padding: '8px 10px', borderRadius: 'var(--radius-sm)', fontFamily: 'var(--font-mono)', fontSize: '0.78rem' }}>
           {dominance.rowDetails.map((d) => (
             <div
               key={d.row}
               style={{
                 display: 'flex',
                 justifyContent: 'space-between',
-                color: d.satisfies ? '#34d399' : '#f87171',
-                padding: '2px 0',
-                borderBottom: '1px dashed rgba(51, 65, 85, 0.4)'
+                alignItems: 'center',
+                padding: '4px 0',
+                borderBottom: '1px solid var(--border-subtle)',
+                color: d.satisfies ? 'var(--success-green)' : 'var(--warning-amber)'
               }}
             >
               <span>Fila {d.row}: |{d.diagonal}| &gt; {d.sumOffDiagonal}</span>
-              <span style={{ fontWeight: 600 }}>{d.satisfies ? 'CUMPLE' : 'NO CUMPLE'}</span>
+              <span style={{ fontWeight: 700 }}>{d.satisfies ? 'CUMPLE' : 'NO CUMPLE'}</span>
             </div>
           ))}
         </div>
 
-        <p style={{ fontSize: '0.76rem', color: '#94a3b8' }}>
+        <p style={{ fontSize: '0.76rem', color: 'var(--text-secondary)', margin: 0, lineHeight: 1.4 }}>
           {dominance.summaryMessage}
         </p>
       </div>
 
-      {/* 2. SOLUCIÓN ANALÍTICA EXACTA Y RESIDUO */}
+      {/* 3. SOLUCIÓN ANALÍTICA EXACTA Y COMPARACIÓN */}
       <div className="card">
         <div className="card-header">
           <div className="card-title">
@@ -84,26 +127,25 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
               <rect x="2" y="4" width="20" height="16" rx="2" />
               <path d="M7 15h0M2 9.5h20" />
             </svg>
-            Solución Exacta & Residuo Actual
+            Solución Exacta vs Iteración Actual
           </div>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '0.82rem' }}>
           {isSingular ? (
-            <div style={{ color: '#f87171' }}>Matriz singular o indeterminada (det = 0).</div>
+            <div style={{ color: 'var(--danger-red)', fontWeight: 600 }}>
+              Matriz singular o indeterminada (det = 0).
+            </div>
           ) : (
             <>
-              <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-muted)' }}>
-                <span>Determinante det(A):</span>
-                <strong style={{ color: '#ffffff', fontFamily: 'monospace' }}>{Math.round(determinant * 1e4) / 1e4}</strong>
-              </div>
-
               {exactSolution && (
-                <div style={{ background: 'rgba(15, 23, 42, 0.6)', padding: '8px 12px', borderRadius: '6px', fontFamily: 'monospace' }}>
-                  <div style={{ color: '#a855f7', fontWeight: 600, marginBottom: '4px' }}>x* exacto (A⁻¹b):</div>
+                <div style={{ backgroundColor: 'var(--surface-info)', border: '1px solid var(--surface-info-border)', padding: '8px 12px', borderRadius: 'var(--radius-sm)', fontFamily: 'var(--font-mono)' }}>
+                  <div style={{ color: 'var(--primary-blue)', fontWeight: 700, fontSize: '0.78rem', marginBottom: '4px' }}>
+                    Solución Analítica x* (A⁻¹b):
+                  </div>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
                     {exactSolution.map((val, idx) => (
-                      <span key={idx}>
+                      <span key={idx} style={{ color: 'var(--text-primary)' }}>
                         {VARIABLE_NAMES[idx] || `x${idx + 1}`}* = <strong>{val.toFixed(6)}</strong>
                       </span>
                     ))}
@@ -111,36 +153,32 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
                 </div>
               )}
 
-              {/* Comparación de Error Verdadero en el paso actual */}
+              {/* Comparación de Error Verdadero */}
               {exactSolution && activeSnapshot.k > 0 && (
-                <div style={{ fontSize: '0.76rem', color: '#34d399' }}>
-                  Error frente a solución exacta (k={activeSnapshot.k}):
-                  {activeSnapshot.x.map((val, idx) => {
-                    const exact = exactSolution[idx];
-                    const isZeroExact = Math.abs(exact) < 1e-12;
-                    const et = isZeroExact
-                      ? Math.abs(exact - val)
-                      : (Math.abs(exact - val) / Math.abs(exact)) * 100;
-                    return (
-                      <span key={idx} style={{ marginLeft: '8px', fontFamily: 'monospace' }}>
-                        Et_{VARIABLE_NAMES[idx]}: {et.toFixed(4)}{isZeroExact ? ' (abs)' : '%'}
-                      </span>
-                    );
-                  })}
+                <div style={{ fontSize: '0.76rem', color: 'var(--text-secondary)', backgroundColor: 'var(--surface-subtle)', border: '1px solid var(--border-default)', borderRadius: 'var(--radius-xs)', padding: '6px 8px' }}>
+                  <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>Error verdadero Et (k={activeSnapshot.k}):</span>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '3px' }}>
+                    {activeSnapshot.x.map((val, idx) => {
+                      const exact = exactSolution[idx];
+                      const isZeroExact = Math.abs(exact) < 1e-12;
+                      const et = isZeroExact
+                        ? Math.abs(exact - val)
+                        : (Math.abs(exact - val) / Math.abs(exact)) * 100;
+                      return (
+                        <span key={idx} style={{ fontFamily: 'var(--font-mono)' }}>
+                          Et_{VARIABLE_NAMES[idx] || `x${idx + 1}`}: <strong>{et.toFixed(4)}{isZeroExact ? ' (abs)' : '%'}</strong>
+                        </span>
+                      );
+                    })}
+                  </div>
                 </div>
               )}
-
-              {/* Norma del residuo */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 8px', background: 'rgba(15, 23, 42, 0.4)', borderRadius: '4px', fontFamily: 'monospace' }}>
-                <span style={{ color: 'var(--text-muted)' }}>Norma del residuo ||r(k)||_inf:</span>
-                <strong style={{ color: '#f59e0b' }}>{activeSnapshot.residualInfNorm.toExponential(4)}</strong>
-              </div>
             </>
           )}
         </div>
       </div>
 
-      {/* 3. TABLA COMPLETA DE ITERACIONES */}
+      {/* 4. HISTORIAL DE ITERACIONES */}
       <div className="card" style={{ flex: 1 }}>
         <div className="card-header">
           <div className="card-title">
@@ -154,19 +192,21 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
             </svg>
             Historial de Iteraciones
           </div>
-          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Clic para inspeccionar</span>
+          <span style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>
+            Selecciona fila para inspeccionar
+          </span>
         </div>
 
         <div style={{ overflowX: 'auto', maxHeight: '280px', overflowY: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8rem', textAlign: 'right' }}>
+          <table className="scientific-table">
             <thead>
-              <tr style={{ background: '#0b1120', color: 'var(--text-muted)', borderBottom: '1px solid #334155' }}>
-                <th style={{ padding: '8px 10px', textAlign: 'center' }}>k</th>
+              <tr>
+                <th>k</th>
                 {snapshots[0].x.map((_, i) => (
-                  <th key={i} style={{ padding: '8px 10px' }}>{VARIABLE_NAMES[i] || `x${i + 1}`}</th>
+                  <th key={i}>{VARIABLE_NAMES[i] || `x${i + 1}`}</th>
                 ))}
-                <th style={{ padding: '8px 10px' }}>Ea máx (%)</th>
-                <th style={{ padding: '8px 10px' }}>||r||_inf</th>
+                <th>Ea Máx (%)</th>
+                <th>||r||∞</th>
               </tr>
             </thead>
             <tbody>
@@ -175,6 +215,7 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
                 return (
                   <tr
                     key={snap.k}
+                    className={isActive ? 'active-row' : ''}
                     onClick={() => onSelectStep(snap.k)}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' || e.key === ' ') {
@@ -184,26 +225,21 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
                     }}
                     tabIndex={0}
                     role="button"
-                    aria-label={`Ver iteración k=${snap.k}`}
-                    style={{
-                      cursor: 'pointer',
-                      background: isActive ? 'rgba(56, 189, 248, 0.2)' : 'transparent',
-                      borderBottom: '1px solid rgba(51, 65, 85, 0.4)',
-                      outline: isActive ? '1px solid #38bdf8' : 'none'
-                    }}
+                    aria-label={`Inspeccionar iteración k=${snap.k}`}
+                    style={{ cursor: 'pointer' }}
                   >
-                    <td style={{ padding: '6px 10px', textAlign: 'center', fontWeight: 700, fontFamily: 'monospace' }}>
+                    <td style={{ fontFamily: 'var(--font-mono)', fontWeight: 700 }}>
                       {snap.k}
                     </td>
                     {snap.x.map((val, idx) => (
-                      <td key={idx} style={{ padding: '6px 10px', fontFamily: 'monospace' }}>
+                      <td key={idx} style={{ fontFamily: 'var(--font-mono)' }}>
                         {val.toFixed(4)}
                       </td>
                     ))}
-                    <td style={{ padding: '6px 10px', fontFamily: 'monospace', color: '#f59e0b' }}>
+                    <td style={{ fontFamily: 'var(--font-mono)', color: snap.maxApproximateError !== null && snap.maxApproximateError < 1 ? 'var(--success-green)' : 'var(--text-secondary)' }}>
                       {snap.maxApproximateError !== null ? `${snap.maxApproximateError.toFixed(4)}%` : '—'}
                     </td>
-                    <td style={{ padding: '6px 10px', fontFamily: 'monospace', color: '#94a3b8' }}>
+                    <td style={{ fontFamily: 'var(--font-mono)', color: 'var(--math-teal)' }}>
                       {snap.residualInfNorm.toExponential(2)}
                     </td>
                   </tr>

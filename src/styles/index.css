@@ -1,129 +1,231 @@
 :root {
-  --bg-primary: #0b1120;
-  --bg-secondary: #0f172a;
-  --bg-card: #1e293b;
-  --bg-card-hover: #334155;
-  --bg-glass: rgba(15, 23, 42, 0.75);
-  --border-color: #334155;
-  --border-subtle: rgba(51, 65, 85, 0.5);
-  --border-focus: #38bdf8;
+  /* ==========================================================================
+     SISTEMA DE DISEÑO CIENTÍFICO — LABORATORIO VIRTUAL DE GAUSS-SEIDEL (UTP)
+     Tema Claro Académico Profesional (WCAG 2.2 AA Conforme)
+     ========================================================================== */
 
-  --text-main: #f8fafc;
-  --text-muted: #94a3b8;
-  --text-subtle: #64748b;
+  /* 1. PALETA DE COLORES BASE Y SUPERFICIES */
+  --bg-app: #F4F7FB;                  /* Fondo general de la aplicación */
+  --surface-card: #FFFFFF;            /* Fondo de tarjetas y paneles principales */
+  --surface-subtle: #F8FAFC;          /* Fondos secundarios, encabezados de tabla e inputs */
+  --surface-hover: #F1F5F9;           /* Estados hover sutiles */
+  --surface-info: #EEF2FF;            /* Fondo suave explicativo y didáctico */
+  --surface-info-border: #C7D2FE;     /* Borde del bloque explicativo */
 
-  --accent-cyan: #38bdf8;
-  --accent-blue: #3b82f6;
-  --accent-emerald: #10b981;
-  --accent-amber: #f59e0b;
-  --accent-rose: #f43f5e;
-  --accent-purple: #a855f7;
+  /* 2. TIPOGRAFÍA Y JERARQUÍA DE TEXTO */
+  --text-primary: #1F2937;            /* Texto principal de alto contraste (12.6:1 sobre blanco) */
+  --text-secondary: #475569;          /* Texto descriptivo y metadatos (7.0:1 sobre blanco) */
+  --text-muted: #64748B;              /* Texto atenuado y etiquetas secundarias */
+  --text-inverse: #FFFFFF;            /* Texto para botones oscuros o fondos saturados */
 
-  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-  
-  --radius-sm: 4px;
+  /* 3. BORDES Y SEPARADORES */
+  --border-default: #D9E2EF;          /* Bordes de tarjetas y divisiones primarias */
+  --border-subtle: #E2E8F0;           /* Líneas internas de tablas y separadores tenues */
+  --border-focus: #2563EB;            /* Indicador de foco y bordes activos */
+
+  /* 4. COLORES DE ACCIÓN Y MARCA INSTITUCIONAL */
+  --primary-blue: #2563EB;            /* Azul académico principal */
+  --primary-blue-hover: #1D4ED8;      /* Hover botón primario */
+  --primary-blue-light: #EFF6FF;      /* Fondo de botones suaves o filas activas */
+  --primary-blue-border: #BFDBFE;     /* Borde para acentos azules suaves */
+
+  --math-teal: #0F766E;               /* Turquesa matemático para incógnitas activas */
+  --math-teal-light: #F0FDFA;         /* Fondo suave turquesa */
+  --math-teal-border: #99F6E4;        /* Borde turquesa */
+
+  /* 5. ESTADOS SEMÁNTICOS (CONVERGENCIA, ADVERTENCIA, ERROR) */
+  --success-green: #166534;           /* Verde de éxito / convergencia alcanzada */
+  --success-bg: #DCFCE7;              /* Fondo verde suave */
+  --success-border: #BBF7D0;          /* Borde verde */
+
+  --warning-amber: #92400E;           /* Ámbar de advertencia / límite de iteraciones */
+  --warning-bg: #FEF3C7;              /* Fondo ámbar suave */
+  --warning-border: #FDE68A;          /* Borde ámbar */
+
+  --danger-red: #B91C1C;              /* Rojo de error / divergencia o pivote cero */
+  --danger-bg: #FEE2E2;               /* Fondo rojo suave */
+  --danger-border: #FECACA;           /* Borde rojo */
+
+  /* 6. FUENTES */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', ui-monospace, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  --font-math: 'KaTeX_Main', 'Times New Roman', serif;
+
+  /* 7. RADIOS Y REDONDEOS */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
   --radius-md: 8px;
   --radius-lg: 12px;
-  --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -2px rgba(0, 0, 0, 0.2);
+  --radius-xl: 16px;
+  --radius-full: 9999px;
+
+  /* 8. ELEVACIONES Y SOMBRAS SOBRIAS (SIN RESPLANDORES EXCESIVOS) */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-card: 0 1px 3px 0 rgba(15, 23, 42, 0.06), 0 1px 2px -1px rgba(15, 23, 42, 0.04);
+  --shadow-hover: 0 4px 6px -1px rgba(15, 23, 42, 0.08), 0 2px 4px -2px rgba(15, 23, 42, 0.04);
+  --shadow-modal: 0 20px 25px -5px rgba(15, 23, 42, 0.15), 0 8px 10px -6px rgba(15, 23, 42, 0.1);
+
+  /* 9. DIMENSIONES Y GRID */
+  --header-height: 64px;
+  --max-content-width: 1680px;
 }
 
+/* ==========================================================================
+   RESET Y REGLAS BASE
+   ========================================================================== */
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
-body {
-  background-color: var(--bg-primary);
-  color: var(--text-main);
-  font-family: var(--font-sans);
-  line-height: 1.5;
+html, body {
   min-height: 100vh;
+  background-color: var(--bg-app);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* APP SHELL */
+/* ==========================================================================
+   CONTENEDOR PRINCIPAL Y ESTRUCTURA DE PÁGINA
+   ========================================================================== */
 .app-container {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  background-color: var(--bg-app);
 }
 
 .main-content {
   flex: 1;
-  padding: 20px 28px;
-  max-width: 1720px;
+  padding: 16px 24px 32px;
+  max-width: var(--max-content-width);
   margin: 0 auto;
   width: 100%;
 }
 
-/* ENCABEZADO INSTITUCIONAL */
+/* ==========================================================================
+   CABECERA INSTITUCIONAL COMPACTA
+   ========================================================================== */
 .inst-header {
-  background: linear-gradient(180deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%);
-  backdrop-filter: blur(8px);
-  border-bottom: 1px solid var(--border-color);
-  padding: 14px 28px;
+  background-color: var(--surface-card);
+  border-bottom: 1px solid var(--border-default);
+  padding: 12px 28px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   position: sticky;
   top: 0;
   z-index: 50;
+  box-shadow: var(--shadow-sm);
 }
 
 .inst-brand {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
 }
 
 .inst-logo-svg {
-  width: 42px;
-  height: 42px;
-  color: var(--accent-cyan);
-  background-color: rgba(56, 189, 248, 0.1);
-  padding: 8px;
+  width: 38px;
+  height: 38px;
+  color: var(--primary-blue);
+  background-color: var(--primary-blue-light);
+  padding: 7px;
   border-radius: var(--radius-md);
-  border: 1px solid rgba(56, 189, 248, 0.3);
+  border: 1px solid var(--primary-blue-border);
 }
 
 .inst-title-block h1 {
-  font-size: 1.25rem;
+  font-size: 1.15rem;
   font-weight: 700;
-  letter-spacing: -0.01em;
-  color: #ffffff;
+  color: var(--text-primary);
+  line-height: 1.25;
 }
 
 .inst-subtitle {
   font-size: 0.8rem;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   display: flex;
   gap: 8px;
   align-items: center;
+  margin-top: 2px;
 }
 
 .inst-badge {
-  background-color: rgba(59, 130, 246, 0.15);
-  color: #60a5fa;
+  background-color: var(--primary-blue-light);
+  color: var(--primary-blue);
   font-size: 0.72rem;
   padding: 2px 8px;
-  border-radius: 4px;
+  border-radius: var(--radius-xs);
   font-weight: 600;
-  border: 1px solid rgba(59, 130, 246, 0.3);
+  border: 1px solid var(--primary-blue-border);
 }
 
 .inst-actions {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 }
 
-/* BOTONES SEMÁNTICOS */
+/* ==========================================================================
+   BARRA RESUMEN DE ESTADO DE EJECUCIÓN (SUB-HEADER STRIP)
+   ========================================================================== */
+.execution-status-strip {
+  background-color: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  padding: 12px 20px;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  box-shadow: var(--shadow-sm);
+}
+
+.status-metric-group {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.status-metric-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.status-metric-label {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 600;
+}
+
+.status-metric-value {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ==========================================================================
+   BOTONES Y ELEMENTOS DE ACCIÓN SEMÁNTICOS
+   ========================================================================== */
 .btn {
-  background-color: var(--bg-card);
-  color: var(--text-main);
-  border: 1px solid var(--border-color);
+  background-color: var(--surface-card);
+  color: var(--text-primary);
+  border: 1px solid var(--border-default);
   padding: 7px 14px;
   border-radius: var(--radius-sm);
   font-size: 0.84rem;
@@ -132,106 +234,122 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  transition: all 0.15s ease-in-out;
+  transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
   user-select: none;
+  text-decoration: none;
 }
 
 .btn:hover {
-  background-color: var(--bg-card-hover);
-  border-color: #475569;
+  background-color: var(--surface-hover);
+  border-color: #CBD5E1;
 }
 
 .btn:active {
-  transform: scale(0.98);
+  transform: translateY(1px);
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
 }
 
 .btn:disabled {
-  opacity: 0.45;
+  opacity: 0.5;
   cursor: not-allowed;
   transform: none;
 }
 
 .btn-primary {
-  background-color: var(--accent-blue);
-  border-color: var(--accent-blue);
-  color: #ffffff;
+  background-color: var(--primary-blue);
+  border-color: var(--primary-blue);
+  color: var(--text-inverse);
 }
 
 .btn-primary:hover {
-  background-color: #2563eb;
-  border-color: #2563eb;
+  background-color: var(--primary-blue-hover);
+  border-color: var(--primary-blue-hover);
+}
+
+.btn-secondary {
+  background-color: var(--surface-card);
+  border-color: var(--border-default);
+  color: var(--text-primary);
+}
+
+.btn-secondary:hover {
+  background-color: var(--surface-subtle);
+  border-color: #CBD5E1;
 }
 
 .btn-accent {
-  background-color: rgba(56, 189, 248, 0.15);
-  border-color: rgba(56, 189, 248, 0.4);
-  color: var(--accent-cyan);
+  background-color: var(--primary-blue-light);
+  border-color: var(--primary-blue-border);
+  color: var(--primary-blue);
 }
 
 .btn-accent:hover {
-  background-color: rgba(56, 189, 248, 0.25);
-  border-color: var(--accent-cyan);
+  background-color: #DBEAFE;
+  border-color: var(--primary-blue);
+}
+
+.btn-teal {
+  background-color: var(--math-teal-light);
+  border-color: var(--math-teal-border);
+  color: var(--math-teal);
+}
+
+.btn-teal:hover {
+  background-color: #CCFBF1;
+  border-color: var(--math-teal);
 }
 
 .btn-danger {
-  background-color: rgba(244, 63, 94, 0.15);
-  border-color: rgba(244, 63, 94, 0.4);
-  color: var(--accent-rose);
+  background-color: var(--danger-bg);
+  border-color: var(--danger-border);
+  color: var(--danger-red);
 }
 
 .btn-danger:hover {
-  background-color: rgba(244, 63, 94, 0.25);
+  background-color: #FECDCA;
 }
 
 .btn-svg {
-  width: 16px;
-  height: 16px;
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
 }
 
-/* REJILLA DE 3 COLUMNAS */
-.tri-panel-grid {
-  display: grid;
-  grid-template-columns: 360px 1.2fr 440px;
-  gap: 20px;
-  align-items: start;
-}
-
-@media (max-width: 1440px) {
-  .tri-panel-grid {
-    grid-template-columns: 340px 1fr 400px;
-  }
-}
-
-@media (max-width: 1200px) {
-  .tri-panel-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* TARJETAS CIENTÍFICAS */
+/* ==========================================================================
+   TARJETAS Y PANELES CIENTÍFICOS
+   ========================================================================== */
 .card {
-  background-color: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  padding: 18px;
+  background-color: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: 18px 20px;
   display: flex;
   flex-direction: column;
   gap: 14px;
   box-shadow: var(--shadow-card);
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.card:hover {
+  border-color: #CBD5E1;
 }
 
 .card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-bottom: 10px;
+  padding-bottom: 12px;
   border-bottom: 1px solid var(--border-subtle);
 }
 
 .card-title {
   font-size: 0.95rem;
-  font-weight: 600;
-  color: #ffffff;
+  font-weight: 700;
+  color: var(--text-primary);
   display: flex;
   align-items: center;
   gap: 8px;
@@ -240,15 +358,272 @@ body {
 .card-title-svg {
   width: 18px;
   height: 18px;
-  color: var(--accent-cyan);
+  color: var(--primary-blue);
+  flex-shrink: 0;
 }
 
-/* MODAL DE INFORMACIÓN Y DOCUMENTACIÓN */
+/* ==========================================================================
+   REJILLA PRINCIPAL DE 3 PANELES (ESCRITORIO / TABLETA / MÓVIL)
+   ========================================================================== */
+.tri-panel-grid {
+  display: grid;
+  grid-template-columns: 370px 1.25fr 430px;
+  gap: 20px;
+  align-items: start;
+}
+
+@media (max-width: 1480px) {
+  .tri-panel-grid {
+    grid-template-columns: 350px 1.15fr 400px;
+    gap: 16px;
+  }
+}
+
+@media (max-width: 1220px) {
+  .tri-panel-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .tri-panel-grid > div:last-child {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 860px) {
+  .tri-panel-grid {
+    grid-template-columns: 1fr;
+  }
+  .main-content {
+    padding: 12px 14px 24px;
+  }
+}
+
+/* ==========================================================================
+   CAMPOS DE ENTRADA, SELECTS Y MATRICES
+   ========================================================================== */
+input[type="text"],
+input[type="number"],
+select,
+textarea {
+  background-color: var(--surface-subtle);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 0.88rem;
+  padding: 7px 10px;
+  outline: none;
+  transition: border-color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus,
+select:focus,
+textarea:focus {
+  background-color: var(--surface-card);
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.matrix-input-cell {
+  width: 100%;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 0.88rem;
+  font-weight: 500;
+  padding: 6px 4px;
+}
+
+.matrix-cell-diag {
+  background-color: var(--primary-blue-light) !important;
+  border-color: var(--primary-blue-border) !important;
+  color: var(--primary-blue) !important;
+  font-weight: 700 !important;
+}
+
+.matrix-cell-term {
+  background-color: var(--surface-subtle) !important;
+  border-color: var(--border-default) !important;
+  color: var(--math-teal) !important;
+  font-weight: 600 !important;
+}
+
+.playback-bar {
+  background-color: var(--surface-subtle);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.status-strip-card {
+  background-color: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: 10px 16px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  box-shadow: var(--shadow-sm);
+}
+
+.status-strip-kpis {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.status-kpi-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.status-kpi-item strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* ==========================================================================
+   PESTAÑAS DE CONFIGURACIÓN (TABS)
+   ========================================================================== */
+.editor-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border-default);
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.editor-tab-btn {
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-secondary);
+  font-size: 0.84rem;
+  font-weight: 600;
+  padding: 6px 4px 8px;
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.editor-tab-btn:hover {
+  color: var(--text-primary);
+}
+
+.editor-tab-btn.active {
+  color: var(--primary-blue);
+  border-bottom-color: var(--primary-blue);
+}
+
+/* ==========================================================================
+   INSIGNIAS Y PILLS SEMÁNTICOS
+   ========================================================================== */
+.badge-success {
+  background-color: var(--success-bg);
+  color: var(--success-green);
+  border: 1px solid var(--success-border);
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.badge-info {
+  background-color: var(--primary-blue-light);
+  color: var(--primary-blue);
+  border: 1px solid var(--primary-blue-border);
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.badge-teal {
+  background-color: var(--math-teal-light);
+  color: var(--math-teal);
+  border: 1px solid var(--math-teal-border);
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.badge-warning {
+  background-color: var(--warning-bg);
+  color: var(--warning-amber);
+  border: 1px solid var(--warning-border);
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.badge-danger {
+  background-color: var(--danger-bg);
+  color: var(--danger-red);
+  border: 1px solid var(--danger-border);
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ==========================================================================
+   BLOQUES DIDÁCTICOS Y NOTAS EXPLICATIVAS
+   ========================================================================== */
+.tip-callout {
+  background-color: var(--surface-info);
+  border: 1px solid var(--surface-info-border);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  color: #3730A3;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.tip-callout svg {
+  color: #4F46E5;
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* ==========================================================================
+   MODAL DE DIÁLOGO
+   ========================================================================== */
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background-color: rgba(11, 17, 32, 0.85);
-  backdrop-filter: blur(6px);
+  background-color: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -257,9 +632,9 @@ body {
 }
 
 .modal-card {
-  background-color: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-lg);
+  background-color: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-xl);
   max-width: 720px;
   width: 100%;
   max-height: 85vh;
@@ -268,7 +643,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+  box-shadow: var(--shadow-modal);
 }
 
 .modal-header {
@@ -276,5 +651,44 @@ body {
   justify-content: space-between;
   align-items: center;
   padding-bottom: 12px;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+/* ==========================================================================
+   TABLAS DE ITERACIÓN
+   ========================================================================== */
+.scientific-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+.scientific-table th {
+  background-color: var(--surface-subtle);
+  color: var(--text-secondary);
+  font-weight: 600;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border-default);
+  text-align: right;
+}
+
+.scientific-table th:first-child {
+  text-align: center;
+}
+
+.scientific-table td {
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  text-align: right;
+}
+
+.scientific-table td:first-child {
+  text-align: center;
+  font-weight: 600;
+}
+
+.scientific-table tr.active-row {
+  background-color: var(--primary-blue-light);
+  outline: 1px solid var(--primary-blue-border);
 }

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import katex from 'katex';
 import { IterationSnapshot, Matrix } from '../../math/types';
 
@@ -13,6 +13,8 @@ interface IterationCoreProps {
   A: Matrix;
 }
 
+const VARIABLE_NAMES = ['x₁', 'x₂', 'x₃', 'x₄', 'x₅'];
+
 export const IterationCore: React.FC<IterationCoreProps> = ({
   snapshots,
   currentStep,
@@ -23,10 +25,16 @@ export const IterationCore: React.FC<IterationCoreProps> = ({
   setPlaybackSpeed,
   A
 }) => {
-  const formulaRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const [selectedVarIndex, setSelectedVarIndex] = useState<number>(0);
+  const symbolicFormulaRef = useRef<HTMLDivElement | null>(null);
+  const substitutedFormulaRef = useRef<HTMLDivElement | null>(null);
 
   const activeSnapshot = snapshots[currentStep] || snapshots[0];
   const maxStep = Math.max(0, snapshots.length - 1);
+  const dimension = A.length;
+
+  // Ajustar selectedVarIndex si la dimensión cambia
+  const safeVarIndex = Math.min(selectedVarIndex, dimension - 1);
 
   // Intervalo de reproducción automática
   useEffect(() => {
@@ -48,48 +56,69 @@ export const IterationCore: React.FC<IterationCoreProps> = ({
     };
   }, [isPlaying, playbackSpeed, maxStep, setCurrentStep, setIsPlaying]);
 
-  // Renderizar fórmulas con KaTeX en los contenedores DOM
+  // Renderizar Fórmulas Simbólica y Numérica con KaTeX
   useEffect(() => {
-    if (!activeSnapshot || activeSnapshot.k === 0) return;
+    // 1. Fórmula simbólica genérica adaptada a la variable activa
+    if (symbolicFormulaRef.current) {
+      const iPlus1 = safeVarIndex + 1;
+      const kStr = activeSnapshot.k > 0 ? activeSnapshot.k.toString() : 'k+1';
+      const kPrevStr = activeSnapshot.k > 0 ? (activeSnapshot.k - 1).toString() : 'k';
+      
+      const symbolicLatex = `x_{${iPlus1}}^{(${kStr})} = \\frac{1}{a_{${iPlus1}${iPlus1}}} \\left[ b_{${iPlus1}} - \\sum_{j < ${iPlus1}} a_{${iPlus1}j} \\, x_j^{(${kStr})} - \\sum_{j > ${iPlus1}} a_{${iPlus1}j} \\, x_j^{(${kPrevStr})} \\right]`;
 
-    activeSnapshot.substitutions.forEach((sub, idx) => {
-      const el = formulaRefs.current[idx];
-      if (el) {
-        try {
-          const pivot = A[sub.variableIndex][sub.variableIndex];
-          const constVal = sub.numeratorDetails.constant;
-
-          // Construcción de la cadena LaTeX con términos no nulos coloreados didácticamente
-          const updatedParts = sub.numeratorDetails.updatedTerms
-            .filter((t) => Math.abs(t.coeff) > 1e-12)
-            .map((t) => {
-              const sign = t.coeff > 0 ? '-' : '+';
-              const coeffStr = Math.abs(t.coeff) === 1 ? '' : Math.abs(t.coeff).toString();
-              return `{\\color{#34d399}${sign} ${coeffStr}(${t.val.toFixed(6)})}`;
-            })
-            .join(' ');
-
-          const oldParts = sub.numeratorDetails.oldTerms
-            .filter((t) => Math.abs(t.coeff) > 1e-12)
-            .map((t) => {
-              const sign = t.coeff > 0 ? '-' : '+';
-              const coeffStr = Math.abs(t.coeff) === 1 ? '' : Math.abs(t.coeff).toString();
-              return `{\\color{#f59e0b}${sign} ${coeffStr}(${t.val.toFixed(6)})}`;
-            })
-            .join(' ');
-
-          const latexStr = `\\mathbf{${sub.variableName}^{(${activeSnapshot.k})}} = \\frac{${constVal} ${updatedParts} ${oldParts}}{${pivot}} = \\mathbf{${sub.newValue.toFixed(6)}}`;
-
-          katex.render(latexStr, el, {
-            throwOnError: false,
-            displayMode: true
-          });
-        } catch {
-          el.innerText = `${sub.variableName} = ${sub.newValue.toFixed(6)}`;
-        }
+      try {
+        katex.render(symbolicLatex, symbolicFormulaRef.current, {
+          throwOnError: false,
+          displayMode: true
+        });
+      } catch {
+        symbolicFormulaRef.current.innerText = `x_${iPlus1}^(${kStr}) = ...`;
       }
-    });
-  }, [activeSnapshot, A]);
+    }
+
+    // 2. Fórmula con sustitución numérica real de la incógnita activa
+    if (substitutedFormulaRef.current) {
+      if (!activeSnapshot || activeSnapshot.k === 0 || !activeSnapshot.substitutions[safeVarIndex]) {
+        substitutedFormulaRef.current.innerHTML = '';
+        return;
+      }
+
+      const sub = activeSnapshot.substitutions[safeVarIndex];
+      try {
+        const pivot = A[sub.variableIndex][sub.variableIndex];
+        const constVal = sub.numeratorDetails.constant;
+
+        // Términos actualizados en esta iteración (coloreados en verde azulado oscuro matemático)
+        const updatedParts = sub.numeratorDetails.updatedTerms
+          .filter((t) => Math.abs(t.coeff) > 1e-12)
+          .map((t) => {
+            const sign = t.coeff > 0 ? '-' : '+';
+            const coeffStr = Math.abs(t.coeff) === 1 ? '' : Math.abs(t.coeff).toString();
+            return `{\\mathbf{\\color{#0F766E}${sign} ${coeffStr}(${t.val.toFixed(4)})}}`;
+          })
+          .join(' ');
+
+        // Términos de la iteración previa (coloreados en ámbar oscuro)
+        const oldParts = sub.numeratorDetails.oldTerms
+          .filter((t) => Math.abs(t.coeff) > 1e-12)
+          .map((t) => {
+            const sign = t.coeff > 0 ? '-' : '+';
+            const coeffStr = Math.abs(t.coeff) === 1 ? '' : Math.abs(t.coeff).toString();
+            return `{\\mathbf{\\color{#92400E}${sign} ${coeffStr}(${t.val.toFixed(4)})}}`;
+          })
+          .join(' ');
+
+        const substitutedLatex = `x_{${safeVarIndex + 1}}^{(${activeSnapshot.k})} = \\frac{${constVal} ${updatedParts} ${oldParts}}{${pivot}} = \\mathbf{${sub.newValue.toFixed(6)}}`;
+
+        katex.render(substitutedLatex, substitutedFormulaRef.current, {
+          throwOnError: false,
+          displayMode: true
+        });
+      } catch {
+        substitutedFormulaRef.current.innerText = `${sub.variableName} = ${sub.newValue.toFixed(6)}`;
+      }
+    }
+  }, [activeSnapshot, safeVarIndex, A]);
 
   const handlePlayToggle = () => {
     if (currentStep >= maxStep) {
@@ -113,24 +142,37 @@ export const IterationCore: React.FC<IterationCoreProps> = ({
     setCurrentStep(0);
   };
 
+  const handleGoToEnd = () => {
+    setIsPlaying(false);
+    setCurrentStep(maxStep);
+  };
+
+  const currentSub = activeSnapshot.substitutions ? activeSnapshot.substitutions[safeVarIndex] : null;
+
   return (
-    <div className="card">
+    <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      {/* Encabezado del Panel Central */}
       <div className="card-header">
-        <div className="card-title">
-          <svg className="card-title-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <polyline points="4 17 10 11 4 5" />
-            <line x1="12" y1="19" x2="20" y2="19" />
-          </svg>
-          Evolución del Método (Paso {currentStep} de {maxStep})
+        <div>
+          <div className="card-title">
+            <svg className="card-title-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <polyline points="4 17 10 11 4 5" />
+              <line x1="12" y1="19" x2="20" y2="19" />
+            </svg>
+            Evolución de Gauss-Seidel
+          </div>
+          <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
+            Paso a paso con actualización secuencial inmediata
+          </span>
         </div>
 
-        {/* Selector de velocidad */}
+        {/* Selector de Velocidad */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
           <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Velocidad:</span>
           {[0.5, 1, 2].map((spd) => (
             <button
               key={spd}
-              className={`btn ${playbackSpeed === spd ? 'btn-primary' : ''}`}
+              className={`btn ${playbackSpeed === spd ? 'btn-primary' : 'btn-secondary'}`}
               style={{ padding: '2px 8px', fontSize: '0.75rem' }}
               onClick={() => setPlaybackSpeed(spd)}
             >
@@ -140,10 +182,29 @@ export const IterationCore: React.FC<IterationCoreProps> = ({
         </div>
       </div>
 
-      {/* Controles de Reproducción y Deslizador */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', background: 'rgba(15, 23, 42, 0.7)', padding: '10px 14px', borderRadius: '8px', border: '1px solid #334155' }}>
-        <div style={{ display: 'flex', gap: '8px' }}>
-          <button className={`btn ${isPlaying ? 'btn-accent' : 'btn-primary'}`} onClick={handlePlayToggle}>
+      {/* Barra de Reproducción y Deslizador */}
+      <div className="playback-bar">
+        {/* Botones de Control de Reproducción */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <button className="btn btn-secondary" onClick={handleReset} title="Ir al inicio (k=0)" aria-label="Inicio">
+            <svg className="btn-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <polygon points="19 20 9 12 19 4 19 20" />
+              <line x1="5" y1="19" x2="5" y2="5" />
+            </svg>
+          </button>
+
+          <button className="btn btn-secondary" onClick={handleStepPrev} disabled={currentStep === 0} title="Iteración anterior" aria-label="Anterior">
+            <svg className="btn-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <polygon points="15 18 9 12 15 6 15 18" />
+            </svg>
+          </button>
+
+          <button
+            className={`btn ${isPlaying ? 'btn-secondary' : 'btn-primary'}`}
+            onClick={handlePlayToggle}
+            style={{ minWidth: '100px', justifyContent: 'center' }}
+            aria-label={isPlaying ? 'Pausar simulación' : 'Reproducir simulación'}
+          >
             {isPlaying ? (
               <>
                 <svg className="btn-svg" viewBox="0 0 24 24" fill="currentColor">
@@ -157,36 +218,28 @@ export const IterationCore: React.FC<IterationCoreProps> = ({
                 <svg className="btn-svg" viewBox="0 0 24 24" fill="currentColor">
                   <polygon points="5 3 19 12 5 21 5 3" />
                 </svg>
-                {currentStep >= maxStep ? 'Reiniciar y Animar' : 'Animar'}
+                {currentStep >= maxStep ? 'Reiniciar' : 'Animar'}
               </>
             )}
           </button>
 
-          <button className="btn" onClick={handleStepPrev} disabled={currentStep === 0} title="Paso anterior">
+          <button className="btn btn-secondary" onClick={handleStepNext} disabled={currentStep >= maxStep} title="Iteración siguiente" aria-label="Siguiente">
             <svg className="btn-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <polygon points="19 20 9 12 19 4 19 20" />
-              <line x1="5" y1="19" x2="5" y2="5" />
+              <polygon points="9 18 15 12 9 6 9 18" />
             </svg>
           </button>
 
-          <button className="btn" onClick={handleStepNext} disabled={currentStep >= maxStep} title="Paso siguiente">
+          <button className="btn btn-secondary" onClick={handleGoToEnd} disabled={currentStep >= maxStep} title="Ir a la última iteración" aria-label="Fin">
             <svg className="btn-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <polygon points="5 4 15 12 5 20 5 4" />
               <line x1="19" y1="5" x2="19" y2="19" />
             </svg>
           </button>
-
-          <button className="btn" onClick={handleReset} title="Reiniciar al paso 0">
-            <svg className="btn-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M23 4v6h-6" />
-              <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
-            </svg>
-          </button>
         </div>
 
         {/* Deslizador de pasos */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1, minWidth: '220px', maxWidth: '360px' }}>
-          <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Iteración:</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1, minWidth: '200px' }}>
+          <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 600 }}>Paso:</span>
           <input
             type="range"
             min="0"
@@ -196,101 +249,151 @@ export const IterationCore: React.FC<IterationCoreProps> = ({
               setIsPlaying(false);
               setCurrentStep(parseInt(e.target.value, 10));
             }}
-            style={{ flex: 1, accentColor: '#38bdf8', cursor: 'pointer' }}
+            style={{ flex: 1, accentColor: 'var(--primary-blue)', cursor: 'pointer' }}
+            aria-label="Paso de iteración"
           />
-          <span style={{ fontSize: '0.88rem', fontFamily: 'monospace', fontWeight: 700, color: '#38bdf8', minWidth: '40px' }}>
-            k = {currentStep}
+          <span style={{ fontSize: '0.85rem', fontFamily: 'var(--font-mono)', fontWeight: 700, color: 'var(--primary-blue)', minWidth: '60px', textAlign: 'right' }}>
+            k = {currentStep} / {maxStep}
           </span>
         </div>
       </div>
 
-      {/* Tarjeta de Sustitución Numérica y Desglose de Fórmulas */}
-      <div style={{ background: 'rgba(15, 23, 42, 0.6)', border: '1px solid #334155', borderRadius: '8px', padding: '16px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(51, 65, 85, 0.5)', paddingBottom: '8px' }}>
-          <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#ffffff' }}>
-            {activeSnapshot.k === 0 ? 'Vector Inicial x(0)' : `Actualización Secuencial en k = ${activeSnapshot.k}`}
-          </span>
-          <span style={{ fontSize: '0.78rem', color: activeSnapshot.converged ? '#34d399' : '#60a5fa' }}>
-            {activeSnapshot.statusMessage}
-          </span>
-        </div>
-
-        {activeSnapshot.k === 0 ? (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '0.88rem', color: '#cbd5e1' }}>
-            <p style={{ fontStyle: 'italic', color: 'var(--text-muted)' }}>
-              Punto de partida ingresado para iniciar el proceso iterativo:
-            </p>
-            <div style={{ display: 'flex', gap: '20px', background: 'rgba(15, 23, 42, 0.8)', padding: '12px', borderRadius: '6px', fontFamily: 'monospace' }}>
-              {activeSnapshot.x.map((val, idx) => (
-                <div key={idx}>
-                  <strong style={{ color: '#38bdf8' }}>{['x', 'y', 'z', 'w'][idx] || `x${idx + 1}`}(0):</strong> {val.toFixed(4)}
-                </div>
-              ))}
-            </div>
-            <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
-              Norma inicial del residuo ||r(0)||_inf = {activeSnapshot.residualInfNorm.toFixed(4)}. Pulsa <strong>Animar</strong> o <strong>Paso siguiente</strong> para iniciar el cálculo.
-            </p>
+      {/* CASO K = 0 (VECTOR INICIAL) */}
+      {activeSnapshot.k === 0 ? (
+        <div style={{ backgroundColor: 'var(--surface-subtle)', border: '1px solid var(--border-default)', borderRadius: 'var(--radius-md)', padding: '16px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <strong style={{ fontSize: '0.9rem', color: 'var(--text-primary)' }}>Vector de Aproximación Inicial x⁽⁰⁾</strong>
+            <span className="badge-info">Paso Inicial</span>
           </div>
-        ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-            {activeSnapshot.substitutions.map((sub, idx) => (
-              <div
-                key={idx}
-                style={{
-                  background: 'rgba(15, 23, 42, 0.85)',
-                  border: '1px solid #334155',
-                  borderRadius: '6px',
-                  padding: '12px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '8px'
-                }}
-              >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#38bdf8' }}>
-                    Incógnita {sub.variableName}
-                  </span>
-                  <div style={{ fontSize: '0.78rem', fontFamily: 'monospace' }}>
-                    <span style={{ color: 'var(--text-muted)' }}>Valor anterior: </span>
-                    <span>{sub.previousValue.toFixed(4)}</span>
-                    <span style={{ margin: '0 8px', color: '#64748b' }}>&rarr;</span>
-                    <span style={{ color: '#ffffff', fontWeight: 700 }}>{sub.newValue.toFixed(6)}</span>
-                    {sub.approximateError !== null && (
-                      <span style={{ color: '#f59e0b', marginLeft: '10px' }}>
-                        [Ea: {sub.approximateError.toFixed(4)}%]
-                      </span>
-                    )}
-                  </div>
+          <p style={{ fontSize: '0.84rem', color: 'var(--text-secondary)', margin: 0 }}>
+            Punto de partida del método iterativo. Pulsa <strong>Animar</strong> o <strong>Siguiente</strong> para observar la primera iteración $k=1$.
+          </p>
+          <div style={{ display: 'grid', gridTemplateColumns: `repeat(${dimension}, 1fr)`, gap: '10px', marginTop: '6px' }}>
+            {activeSnapshot.x.map((val, idx) => (
+              <div key={idx} style={{ backgroundColor: 'var(--surface-card)', border: '1px solid var(--border-default)', borderRadius: 'var(--radius-sm)', padding: '10px', textAlign: 'center' }}>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 600, fontFamily: 'var(--font-mono)' }}>
+                  {VARIABLE_NAMES[idx] || `x${idx + 1}`}⁽⁰⁾
                 </div>
-
-                {/* Contenedor renderizado con KaTeX */}
-                <div
-                  ref={(el) => (formulaRefs.current[idx] = el)}
-                  style={{
-                    overflowX: 'auto',
-                    padding: '6px 0',
-                    color: '#f8fafc',
-                    fontFamily: 'serif'
-                  }}
-                />
-
-                <div style={{ fontSize: '0.72rem', color: '#94a3b8', borderTop: '1px dashed rgba(51, 65, 85, 0.4)', paddingTop: '6px' }}>
-                  {sub.numeratorDetails.updatedTerms.length > 0 && (
-                    <span style={{ color: '#34d399', marginRight: '14px' }}>
-                      Valores nuevos ya actualizados utilizados: {sub.numeratorDetails.updatedTerms.map((t) => `${t.name}=${t.val.toFixed(4)}`).join(', ')}
-                    </span>
-                  )}
-                  {sub.numeratorDetails.oldTerms.length > 0 && (
-                    <span style={{ color: '#f59e0b' }}>
-                      Valores del paso anterior utilizados: {sub.numeratorDetails.oldTerms.map((t) => `${t.name}=${t.val.toFixed(4)}`).join(', ')}
-                    </span>
-                  )}
+                <div style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--primary-blue)', fontFamily: 'var(--font-mono)', marginTop: '4px' }}>
+                  {val.toFixed(4)}
                 </div>
               </div>
             ))}
           </div>
-        )}
-      </div>
+        </div>
+      ) : (
+        /* CASO K >= 1: PASO ACTIVO CON STEPPER DE VARIABLE Y DESGLOSE KATEX */
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+          {/* Selector de Incógnita Activa (Stepper de Variable) */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
+            <span style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', fontWeight: 600 }}>
+              Incógnita en evaluación secuencial:
+            </span>
+            <div style={{ display: 'flex', gap: '6px' }}>
+              {Array.from({ length: dimension }, (_, idx) => {
+                const isSelected = idx === safeVarIndex;
+                return (
+                  <button
+                    key={idx}
+                    className={`btn ${isSelected ? 'btn-primary' : 'btn-secondary'}`}
+                    style={{ padding: '4px 12px', fontSize: '0.82rem', fontFamily: 'var(--font-mono)' }}
+                    onClick={() => setSelectedVarIndex(idx)}
+                  >
+                    {VARIABLE_NAMES[idx] || `x${idx + 1}`}⁽{activeSnapshot.k}⁾
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Bloque 1: Formulación Simbólica */}
+          <div style={{ backgroundColor: 'var(--surface-card)', border: '1px solid var(--border-default)', borderRadius: 'var(--radius-md)', padding: '12px 16px' }}>
+            <div style={{ fontSize: '0.74rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-muted)', fontWeight: 600, marginBottom: '6px' }}>
+              Ecuación Despejada (Formulación Simbólica)
+            </div>
+            <div ref={symbolicFormulaRef} style={{ overflowX: 'auto', fontSize: '0.98rem', color: 'var(--text-primary)', padding: '4px 0' }} />
+          </div>
+
+          {/* Bloque 2: Sustitución Numérica con Términos Coloreados Didácticamente */}
+          <div style={{ backgroundColor: 'var(--surface-subtle)', border: '1px solid var(--border-default)', borderRadius: 'var(--radius-md)', padding: '14px 16px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+              <span style={{ fontSize: '0.74rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-muted)', fontWeight: 600 }}>
+                Sustitución Numérica en Iteración k = {activeSnapshot.k}
+              </span>
+              <div style={{ display: 'flex', gap: '12px', fontSize: '0.72rem' }}>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', color: 'var(--math-teal)', fontWeight: 600 }}>
+                  <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: 'var(--math-teal)' }}></span>
+                  Actualizado en k
+                </span>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', color: 'var(--warning-amber)', fontWeight: 600 }}>
+                  <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: 'var(--warning-amber)' }}></span>
+                  Paso previo k-1
+                </span>
+              </div>
+            </div>
+            <div ref={substitutedFormulaRef} style={{ overflowX: 'auto', fontSize: '1.05rem', color: 'var(--text-primary)', padding: '6px 0' }} />
+          </div>
+
+          {/* Bloque 3: Subgrid de Valores Utilizados vs Resultado */}
+          {currentSub && (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '12px' }}>
+              {/* Columna Izquierda: Valores Utilizados */}
+              <div style={{ backgroundColor: 'var(--surface-card)', border: '1px solid var(--border-default)', borderRadius: 'var(--radius-md)', padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', fontWeight: 600 }}>
+                  Valores utilizados en este cálculo:
+                </span>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '0.8rem' }}>
+                  {currentSub.numeratorDetails.updatedTerms.length > 0 && (
+                    <div style={{ backgroundColor: 'var(--math-teal-light)', border: '1px solid var(--math-teal-border)', borderRadius: 'var(--radius-sm)', padding: '6px 8px', color: 'var(--math-teal)' }}>
+                      <strong>Valores recién actualizados (k):</strong>{' '}
+                      {currentSub.numeratorDetails.updatedTerms.map((t) => `${t.name} = ${t.val.toFixed(4)}`).join(', ')}
+                    </div>
+                  )}
+                  {currentSub.numeratorDetails.oldTerms.length > 0 && (
+                    <div style={{ backgroundColor: 'var(--warning-bg)', border: '1px solid var(--warning-border)', borderRadius: 'var(--radius-sm)', padding: '6px 8px', color: 'var(--warning-amber)' }}>
+                      <strong>Valores de iteración anterior (k-1):</strong>{' '}
+                      {currentSub.numeratorDetails.oldTerms.map((t) => `${t.name} = ${t.val.toFixed(4)}`).join(', ')}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Columna Derecha: Resultado y Error */}
+              <div style={{ backgroundColor: 'var(--surface-card)', border: '1px solid var(--border-default)', borderRadius: 'var(--radius-md)', padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', fontWeight: 600 }}>
+                  Resultado de la incógnita {currentSub.variableName}:
+                </span>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: '12px' }}>
+                  <span style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--primary-blue)', fontFamily: 'var(--font-mono)' }}>
+                    {currentSub.newValue.toFixed(6)}
+                  </span>
+                  <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)' }}>
+                    (antes: {currentSub.previousValue.toFixed(4)})
+                  </span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.8rem', marginTop: 'auto' }}>
+                  <span style={{ color: 'var(--text-muted)' }}>Error aprox:</span>
+                  <span style={{ fontWeight: 600, color: 'var(--text-primary)', fontFamily: 'var(--font-mono)' }}>
+                    {currentSub.approximateError !== null ? `${currentSub.approximateError.toFixed(4)}%` : '—'}
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Bloque 4: Callout Pedagógico */}
+          <div className="tip-callout">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" y1="16" x2="12" y2="12" />
+              <line x1="12" y1="8" x2="12.01" y2="8" />
+            </svg>
+            <div>
+              <strong>Principio Didáctico de Gauss-Seidel:</strong> A diferencia de Jacobi, que almacena todos los valores hasta completar la iteración, Gauss-Seidel sustituye de inmediato el valor obtenido de cada variable en las ecuaciones subsecuentes dentro del mismo ciclo, acelerando la tasa de contracción del error.
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

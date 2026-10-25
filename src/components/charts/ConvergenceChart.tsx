@@ -44,25 +44,27 @@ export const ConvergenceChart: React.FC<ConvergenceChartProps> = ({ snapshots, t
           {
             label: 'Ea Máximo (%)',
             data: dataMaxEa,
-            borderColor: '#38bdf8',
-            backgroundColor: '#38bdf8',
+            borderColor: '#2563EB',
+            backgroundColor: '#2563EB',
             borderWidth: 2,
             tension: 0.15,
-            pointRadius: 4
+            pointRadius: 4,
+            pointHoverRadius: 6
           },
           {
             label: 'Norma del Residuo ||r||_inf',
             data: dataResidual,
-            borderColor: '#f59e0b',
-            backgroundColor: '#f59e0b',
+            borderColor: '#0F766E',
+            backgroundColor: '#0F766E',
             borderWidth: 2,
             tension: 0.15,
-            pointRadius: 4
+            pointRadius: 4,
+            pointHoverRadius: 6
           },
           {
             label: toleranceLabel,
             data: dataTol,
-            borderColor: '#f43f5e',
+            borderColor: '#B91C1C',
             borderDash: [5, 5],
             borderWidth: 1.5,
             pointRadius: 0,
@@ -76,26 +78,41 @@ export const ConvergenceChart: React.FC<ConvergenceChartProps> = ({ snapshots, t
         scales: {
           y: {
             type: 'logarithmic',
-            grid: { color: 'rgba(51, 65, 85, 0.4)' },
+            grid: { color: '#E2E8F0' },
             ticks: {
-              color: '#94a3b8'
+              color: '#475569',
+              font: { family: "'JetBrains Mono', monospace", size: 10 }
             }
           },
           x: {
-            grid: { color: 'rgba(51, 65, 85, 0.4)' },
-            ticks: { color: '#94a3b8' }
+            grid: { color: '#F1F5F9' },
+            ticks: {
+              color: '#475569',
+              font: { family: "'JetBrains Mono', monospace", size: 10 }
+            }
           }
         },
         plugins: {
           legend: {
             position: 'top',
-            labels: { color: '#94a3b8', font: { size: 11 }, boxWidth: 12 }
+            labels: {
+              color: '#1F2937',
+              font: { family: "'Inter', sans-serif", size: 11, weight: 'bold' },
+              boxWidth: 12,
+              usePointStyle: true,
+              pointStyle: 'circle'
+            }
           },
           tooltip: {
+            backgroundColor: '#1F2937',
+            titleColor: '#FFFFFF',
+            bodyColor: '#F8FAFC',
+            borderColor: '#D9E2EF',
+            borderWidth: 1,
             callbacks: {
               label: (context) => {
                 const yVal = context.parsed.y;
-                return `${context.dataset.label}: ${yVal != null ? yVal.toFixed(5) : ''}`;
+                return `${context.dataset.label}: ${yVal != null ? yVal.toFixed(6) : ''}`;
               }
             }
           }
@@ -108,7 +125,7 @@ export const ConvergenceChart: React.FC<ConvergenceChartProps> = ({ snapshots, t
         chartInstance.current.destroy();
       }
     };
-  }, [snapshots, tolerance]);
+  }, [snapshots, tolerance, errorMetric]);
 
   return (
     <div className="card">
@@ -117,10 +134,13 @@ export const ConvergenceChart: React.FC<ConvergenceChartProps> = ({ snapshots, t
           <svg className="card-title-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
           </svg>
-          Evolución del Error & Residuo (Escala Logarítmica)
+          Convergencia del Error y Residuo (Semilog)
         </div>
+        <span className="badge-teal">
+          Escala Log₁₀
+        </span>
       </div>
-      <div style={{ height: '220px', width: '100%', position: 'relative' }}>
+      <div style={{ height: '230px', width: '100%', position: 'relative' }}>
         <canvas ref={canvasRef} />
       </div>
     </div>

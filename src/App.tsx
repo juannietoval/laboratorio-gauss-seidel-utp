@@ -137,28 +137,45 @@ export const App: React.FC = () => {
       <Header />
 
       <main className="main-content">
-        {/* Barra superior de herramientas rápidas */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '10px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-              Estado del método:
-            </span>
-            <span
-              className="inst-badge"
-              style={{
-                background: executionResult.converged ? 'rgba(16, 185, 129, 0.2)' : 'rgba(245, 158, 11, 0.2)',
-                color: executionResult.converged ? '#34d399' : '#fbbf24',
-                borderColor: executionResult.converged ? '#10b981' : '#f59e0b'
-              }}
-            >
-              {executionResult.converged ? 'Convergencia Verificada' : 'Iteraciones en Límite o Divergente'}
-            </span>
-            <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>
-              ({executionResult.iterationsCompleted} iteraciones calculadas)
-            </span>
+        {/* Barra superior de estado y métricas globales de ejecución */}
+        <div className="status-strip-card">
+          <div className="status-strip-kpis">
+            <div className="status-kpi-item">
+              <span>Estado del método:</span>
+              <span className={executionResult.converged ? 'badge-success' : 'badge-warning'}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ width: '13px', height: '13px' }}>
+                  {executionResult.converged ? (
+                    <polyline points="20 6 9 17 4 12" />
+                  ) : (
+                    <>
+                      <circle cx="12" cy="12" r="10" />
+                      <line x1="12" y1="8" x2="12" y2="12" />
+                      <line x1="12" y1="16" x2="12.01" y2="16" />
+                    </>
+                  )}
+                </svg>
+                {executionResult.converged ? 'Convergencia Verificada' : 'Límite de Iteraciones / Divergente'}
+              </span>
+            </div>
+
+            <div className="status-kpi-item">
+              <span>Iteración actual:</span>
+              <strong>{safeCurrentStep} de {Math.max(0, snapshots.length - 1)}</strong>
+            </div>
+
+            <div className="status-kpi-item">
+              <span>Criterio de parada:</span>
+              <strong>
+                {config.errorMetric === 'RELATIVE_PERCENT'
+                  ? `Tolerancia ε = ${config.tolerance}%`
+                  : config.errorMetric === 'RESIDUAL_NORM'
+                  ? `Norma ||r||∞ < ${config.tolerance}`
+                  : `Norma ||Δx||∞ < ${config.tolerance}`}
+              </strong>
+            </div>
           </div>
 
-          <button className="btn btn-accent" onClick={() => setShowExportModal(true)}>
+          <button className="btn btn-secondary" onClick={() => setShowExportModal(true)}>
             <svg className="btn-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
               <polyline points="7 10 12 15 17 10" />

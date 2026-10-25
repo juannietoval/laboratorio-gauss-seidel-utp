@@ -103,11 +103,11 @@ export const Geometry3DView: React.FC<Geometry3DViewProps> = ({
         x: xVals,
         y: yVals,
         z: p1Grid.z,
-        name: 'Plano 1',
-        opacity: 0.35,
+        name: 'Plano 1 (E₁)',
+        opacity: 0.45,
         showscale: false,
         visible: showP1,
-        colorscale: [[0, '#38bdf8'], [1, '#1d4ed8']],
+        colorscale: [[0, '#93C5FD'], [1, '#2563EB']],
         hoverinfo: 'name'
       });
     }
@@ -118,11 +118,11 @@ export const Geometry3DView: React.FC<Geometry3DViewProps> = ({
         x: xVals,
         y: yVals,
         z: p2Grid.z,
-        name: 'Plano 2',
-        opacity: 0.35,
+        name: 'Plano 2 (E₂)',
+        opacity: 0.45,
         showscale: false,
         visible: showP2,
-        colorscale: [[0, '#10b981'], [1, '#047857']],
+        colorscale: [[0, '#99F6E4'], [1, '#0F766E']],
         hoverinfo: 'name'
       });
     }
@@ -133,11 +133,11 @@ export const Geometry3DView: React.FC<Geometry3DViewProps> = ({
         x: xVals,
         y: yVals,
         z: p3Grid.z,
-        name: 'Plano 3',
-        opacity: 0.35,
+        name: 'Plano 3 (E₃)',
+        opacity: 0.45,
         showscale: false,
         visible: showP3,
-        colorscale: [[0, '#f59e0b'], [1, '#b45309']],
+        colorscale: [[0, '#FDE68A'], [1, '#D97706']],
         hoverinfo: 'name'
       });
     }
@@ -151,8 +151,8 @@ export const Geometry3DView: React.FC<Geometry3DViewProps> = ({
         y: trajY,
         z: trajZ,
         text: trajText,
-        line: { color: '#ef4444', width: 5, dash: 'dash' },
-        marker: { size: 5, color: '#f87171' },
+        line: { color: '#DC2626', width: 4, dash: 'dash' },
+        marker: { size: 4, color: '#EF4444' },
         hoverinfo: 'text'
       },
       {
@@ -162,10 +162,10 @@ export const Geometry3DView: React.FC<Geometry3DViewProps> = ({
         x: [cur.x[0]],
         y: [cur.x[1]],
         z: [cur.x[2]],
-        marker: { size: 8, color: '#38bdf8', symbol: 'circle', line: { color: '#ffffff', width: 2 } },
+        marker: { size: 8, color: '#2563EB', symbol: 'circle', line: { color: '#FFFFFF', width: 2 } },
         text: [` k=${cur.k}`],
         textposition: 'top center',
-        textfont: { color: '#ffffff', size: 12, family: 'monospace' }
+        textfont: { color: '#1F2937', size: 12, family: "'JetBrains Mono', monospace" }
       }
     );
 
@@ -177,20 +177,20 @@ export const Geometry3DView: React.FC<Geometry3DViewProps> = ({
         x: [exactSolution[0]],
         y: [exactSolution[1]],
         z: [exactSolution[2]],
-        marker: { size: 10, color: '#a855f7', symbol: 'diamond', line: { color: '#ffffff', width: 2 } },
+        marker: { size: 10, color: '#7C3AED', symbol: 'diamond', line: { color: '#FFFFFF', width: 2 } },
         text: [' x* Exacto'],
         textposition: 'bottom right',
-        textfont: { color: '#e9d5ff', size: 11, family: 'monospace' }
+        textfont: { color: '#5B21B6', size: 11, family: "'JetBrains Mono', monospace" }
       });
     }
 
     const layout: Partial<Plotly.Layout> = {
       margin: { l: 0, r: 0, b: 0, t: 0 },
-      paper_bgcolor: 'rgba(0,0,0,0)',
+      paper_bgcolor: '#FFFFFF',
       scene: {
-        xaxis: { title: 'X', range: rangeX, color: '#94a3b8', gridcolor: '#334155' },
-        yaxis: { title: 'Y', range: rangeY, color: '#94a3b8', gridcolor: '#334155' },
-        zaxis: { title: 'Z', range: rangeZ, color: '#94a3b8', gridcolor: '#334155' },
+        xaxis: { title: 'X', range: rangeX, color: '#475569', gridcolor: '#E2E8F0', backgroundcolor: '#F8FAFC', showbackground: true },
+        yaxis: { title: 'Y', range: rangeY, color: '#475569', gridcolor: '#E2E8F0', backgroundcolor: '#F8FAFC', showbackground: true },
+        zaxis: { title: 'Z', range: rangeZ, color: '#475569', gridcolor: '#E2E8F0', backgroundcolor: '#F8FAFC', showbackground: true },
         camera: { eye: { x: 1.5, y: -1.7, z: 1.1 } },
         aspectmode: 'cube'
       },
@@ -220,8 +220,8 @@ export const Geometry3DView: React.FC<Geometry3DViewProps> = ({
             Espacio Geométrico ({dimension}x{dimension})
           </div>
         </div>
-        <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-          La representación tridimensional de planos intersecantes está disponible específicamente para sistemas de dimensión <strong>3x3</strong>. Para dimensión {dimension}x{dimension}, consulta la tabla de convergencia y la gráfica de decaimiento del error.
+        <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-secondary)', fontSize: '0.88rem', lineHeight: 1.5 }}>
+          La representación tridimensional de planos intersecantes está optimizada específicamente para sistemas de dimensión <strong>3x3</strong>. Para dimensión {dimension}x{dimension}, consulta la tabla de convergencia y la gráfica semilogarítmica del error.
         </div>
       </div>
     );
@@ -239,21 +239,21 @@ export const Geometry3DView: React.FC<Geometry3DViewProps> = ({
           Vista 3D: Intersección de Planos y Trayectoria
         </div>
 
-        {/* Conmutadores de planos */}
-        <div style={{ display: 'flex', gap: '8px', fontSize: '0.78rem' }}>
-          <label style={{ display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer', color: '#38bdf8' }}>
-            <input type="checkbox" checked={showP1} onChange={(e) => setShowP1(e.target.checked)} /> P1
+        {/* Conmutadores de Visibilidad de Planos */}
+        <div style={{ display: 'flex', gap: '10px', fontSize: '0.78rem' }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer', color: 'var(--primary-blue)', fontWeight: 600 }}>
+            <input type="checkbox" checked={showP1} onChange={(e) => setShowP1(e.target.checked)} /> P₁
           </label>
-          <label style={{ display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer', color: '#34d399' }}>
-            <input type="checkbox" checked={showP2} onChange={(e) => setShowP2(e.target.checked)} /> P2
+          <label style={{ display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer', color: 'var(--math-teal)', fontWeight: 600 }}>
+            <input type="checkbox" checked={showP2} onChange={(e) => setShowP2(e.target.checked)} /> P₂
           </label>
-          <label style={{ display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer', color: '#f59e0b' }}>
-            <input type="checkbox" checked={showP3} onChange={(e) => setShowP3(e.target.checked)} /> P3
+          <label style={{ display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer', color: 'var(--warning-amber)', fontWeight: 600 }}>
+            <input type="checkbox" checked={showP3} onChange={(e) => setShowP3(e.target.checked)} /> P₃
           </label>
         </div>
       </div>
 
-      <div ref={containerRef} style={{ width: '100%', height: '380px', borderRadius: '8px', overflow: 'hidden', background: '#0b1120' }} />
+      <div ref={containerRef} style={{ width: '100%', height: '380px', borderRadius: 'var(--radius-md)', overflow: 'hidden', border: '1px solid var(--border-default)', backgroundColor: '#FFFFFF' }} />
     </div>
   );
 };

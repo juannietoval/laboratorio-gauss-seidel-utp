@@ -7,8 +7,8 @@ export const Header: React.FC = () => {
     <>
       <header className="inst-header">
         <div className="inst-brand">
-          {/* Logo vectorial SVG semántico institucional */}
-          <svg className="inst-logo-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          {/* Emblema vectorial SVG semántico institucional UTP */}
+          <svg className="inst-logo-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-label="Logo institucional UTP">
             <path d="M12 2L2 7l10 5 10-5-10-5z" />
             <path d="M2 17l10 5 10-5" />
             <path d="M2 12l10 5 10-5" />
@@ -18,79 +18,116 @@ export const Header: React.FC = () => {
             <div className="inst-subtitle">
               <span>Universidad Tecnológica de Pereira</span>
               <span>·</span>
-              <span className="inst-badge">Métodos Numéricos y Programación</span>
+              <span className="inst-badge">Métodos Numéricos</span>
             </div>
           </div>
         </div>
 
         <div className="inst-actions">
-          <button className="btn btn-accent" onClick={() => setShowDocModal(true)} title="Instrucciones y Fundamento Teórico">
+          {/* Botón de Guía y Teoría */}
+          <button 
+            className="btn btn-secondary" 
+            onClick={() => setShowDocModal(true)} 
+            title="Instrucciones y Fundamento Teórico"
+            aria-label="Abrir guía teórica de Gauss-Seidel"
+          >
             <svg className="btn-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="10" />
-              <line x1="12" y1="16" x2="12" y2="12" />
-              <line x1="12" y1="8" x2="12.01" y2="8" />
+              <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+              <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
             </svg>
             <span>Guía y Teoría</span>
           </button>
 
+          {/* Enlace al Repositorio */}
           <a 
             href="https://github.com/juannietoval/laboratorio-gauss-seidel-utp" 
             target="_blank" 
             rel="noopener noreferrer" 
-            className="btn"
-            title="Ver repositorio en GitHub"
+            className="btn btn-secondary"
+            title="Ver repositorio del proyecto en GitHub"
+            aria-label="Abrir repositorio en GitHub"
           >
             <svg className="btn-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22" />
+              <polyline points="16 18 22 12 16 6" />
+              <polyline points="8 6 2 12 8 18" />
             </svg>
-            <span>GitHub</span>
+            <span>Repositorio</span>
           </a>
+
+          {/* Icono de Perfil Académico */}
+          <div 
+            className="btn btn-secondary" 
+            style={{ padding: '6px 8px', borderRadius: 'var(--radius-full)' }} 
+            title="Estudiante / Investigador UTP"
+            aria-label="Perfil de usuario"
+          >
+            <svg className="btn-svg" style={{ margin: 0 }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+              <circle cx="12" cy="7" r="4" />
+            </svg>
+          </div>
         </div>
       </header>
 
-      {/* MODAL DE INFORMACIÓN Y DOCUMENTACIÓN */}
+      {/* MODAL DE INFORMACIÓN Y DOCUMENTACIÓN DIDÁCTICA */}
       {showDocModal && (
-        <div className="modal-overlay" onClick={() => setShowDocModal(false)}>
+        <div className="modal-overlay" onClick={() => setShowDocModal(false)} role="dialog" aria-modal="true" aria-labelledby="modal-doc-title">
           <div className="modal-card" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h2 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#ffffff' }}>
+              <h2 id="modal-doc-title" style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>
                 Fundamentos del Método de Gauss-Seidel
               </h2>
-              <button className="btn" onClick={() => setShowDocModal(false)}>
-                <svg className="btn-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <button 
+                className="btn btn-secondary" 
+                style={{ padding: '4px 8px' }} 
+                onClick={() => setShowDocModal(false)}
+                aria-label="Cerrar modal de información"
+              >
+                <svg className="btn-svg" style={{ margin: 0 }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <line x1="18" y1="6" x2="6" y2="18" />
                   <line x1="6" y1="6" x2="18" y2="18" />
                 </svg>
               </button>
             </div>
 
-            <div style={{ fontSize: '0.9rem', color: '#cbd5e1', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', display: 'flex', flexDirection: 'column', gap: '14px', lineHeight: 1.55 }}>
               <p>
-                El método de Gauss-Seidel es una técnica iterativa empleada para resolver sistemas de ecuaciones lineales algebraicas cuadradas de la forma <strong>Ax = b</strong>.
+                El método iterativo de <strong>Gauss-Seidel</strong> resuelve sistemas de ecuaciones lineales algebraicas cuadradas de la forma <strong>Ax = b</strong>. A diferencia del método de Jacobi, incorpora de inmediato los valores recién calculados en la misma iteración para evaluar las siguientes incógnitas.
               </p>
               
-              <div style={{ backgroundColor: 'rgba(15, 23, 42, 0.6)', padding: '12px', borderRadius: '6px', borderLeft: '4px solid #38bdf8' }}>
-                <strong style={{ color: '#38bdf8' }}>Esquema de actualización secuencial inmediata:</strong>
-                <p style={{ marginTop: '4px', fontFamily: 'monospace' }}>
-                  x_i^(k+1) = [ b_i - Σ(j=1 a i-1) a_ij·x_j^(k+1) - Σ(j=i+1 a n) a_ij·x_j^(k) ] / a_ii
-                </p>
+              <div className="tip-callout" style={{ flexDirection: 'column', gap: '6px' }}>
+                <strong style={{ color: 'var(--primary-blue)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: '16px', height: '16px' }}>
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="12" y1="16" x2="12" y2="12" />
+                    <line x1="12" y1="8" x2="12.01" y2="8" />
+                  </svg>
+                  Fórmula de actualización secuencial inmediata:
+                </strong>
+                <div style={{ backgroundColor: 'var(--surface-card)', padding: '10px 12px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-default)', fontFamily: 'var(--font-mono)', fontSize: '0.85rem', color: 'var(--text-primary)', overflowX: 'auto' }}>
+                  x_i^(k+1) = [ b_i - &Sigma;_(j &lt; i) a_ij &middot; x_j^(k+1) - &Sigma;_(j &gt; i) a_ij &middot; x_j^(k) ] / a_ii
+                </div>
               </div>
 
-              <h3 style={{ fontSize: '1rem', color: '#f8fafc', marginTop: '6px' }}>Condición de Convergencia</h3>
+              <h3 style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--text-primary)', marginTop: '4px', marginBottom: '0' }}>
+                Condición Suficiente de Convergencia
+              </h3>
               <p>
-                Una condición <strong>suficiente</strong> (pero no necesaria) para asegurar la convergencia del método es que la matriz de coeficientes sea <strong>estrictamente diagonal dominante por filas</strong>:
+                Una condición suficiente (pero no necesaria) para asegurar la convergencia del algoritmo hacia la solución única es que la matriz de coeficientes sea <strong>estrictamente diagonal dominante por filas</strong>:
               </p>
-              <p style={{ fontFamily: 'monospace', color: '#34d399' }}>
-                |a_ii| &gt; Σ_(j ≠ i) |a_ij|, para toda fila i = 1, 2, ..., n
-              </p>
+              <div style={{ backgroundColor: 'var(--surface-subtle)', padding: '8px 12px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-default)', fontFamily: 'var(--font-mono)', color: 'var(--math-teal)', fontWeight: 600 }}>
+                |a_ii| &gt; &Sigma;_(j &ne; i) |a_ij|, para todo i = 1, 2, ..., n
+              </div>
 
-              <h3 style={{ fontSize: '1rem', color: '#f8fafc', marginTop: '6px' }}>Reordenamiento de Ecuaciones</h3>
+              <h3 style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--text-primary)', marginTop: '4px', marginBottom: '0' }}>
+                Reordenamiento de Ecuaciones
+              </h3>
               <p>
-                Si un sistema no cumple la condición de dominancia diagonal o presenta ceros en la diagonal principal (impidiendo la división), intercambiar las filas del sistema permite inducir convergencia sin alterar la solución matemática del problema.
+                Si el sistema presenta ceros en la diagonal principal (división por cero) o no satisface la dominancia diagonal, intercambiar el orden de las ecuaciones (filas del sistema) permite restablecer la viabilidad numérica y acelerar la convergencia sin modificar la solución física del problema.
               </p>
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '10px' }}>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '12px', paddingTop: '12px', borderTop: '1px solid var(--border-subtle)' }}>
               <button className="btn btn-primary" onClick={() => setShowDocModal(false)}>
                 Entendido
               </button>
