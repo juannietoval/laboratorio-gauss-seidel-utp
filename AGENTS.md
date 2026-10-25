@@ -39,6 +39,8 @@ Para cada fase:
 | Fase | Revisor | Fecha / Hora | Veredicto | Hallazgos Principales / Acciones |
 | :--- | :--- | :--- | :--- | :--- |
 | **Fase 0** | Agente B / Principal | 2026-10-24 | APROBADO | Estructura de repositorio, configuración GitHub Pages y documentación base inicializada. |
+| **Fase 1-2** | Agente C (`ux-reviewer`) | 2026-10-25 | APROBADO CON EXCELENCIA (98/100) | Jerarquía visual tripartita verificada. Cero emojis/stickers (100% SVG semántico). Se aplicó OBS-01 (coloreado didáctico KaTeX), OBS-02 (aria-labels a11y) y OBS-03 (navegación por teclado). |
+| **Fase 3** | Agente A (`math-reviewer`) | 2026-10-25 | APROBADO (98/100) | Actualización estrictamente secuencial Gauss-Seidel verificada. Se corrigió H-01 (bifurcación completa de criterios de parada por residuo y norma absoluta) y H-02 (guardia de dimensión en reordenamiento). 14/14 tests aprobados. |
 | **Fase 1** | Agente C (`ux-reviewer`) | Pendiente | — | Estructura visual y componentes base de diseño. |
 | **Fase 2** | Agente D (`test-engineer`) | Pendiente | — | Editor matricial y validaciones de entrada. |
 | **Fase 3** | Agente A (`math-reviewer`) | Pendiente | — | Motor matemático de Gauss-Seidel desacoplado. |
